@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Correct Words</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Please Correct the Wrong Words</h1>
+    <p> If the word is correct, then tick the correct Yes, <br>
+        If the word is wrong, then first correct the word, then tick the correct Yes  <br>
+        If it is not possible to correct the word, then just delete the word and blank the box and then tick the correct Yes. </p>
+    <ul>
+        {% for index, word, checked in word_tuples %}
+            <li>
+                <label>
+                    Checked: 
+                    <input type="radio" name="correct_{{ index }}" value="yes" 
+                           {% if checked == 'yes' %}checked{% endif %} 
+                           onchange="updateState({{ index }}, 'yes')"> Yes
+
+                </label>
+                <input type="hidden" name="word_{{ index }}" value="{{ word }}">
+                <input type="text" name="corrected_word_{{ index }}" value="{{ word }}" 
+                       oninput="updateWord({{ index }}, this.value)">
+            </li>
+        {% endfor %}
+    </ul>
+    <script>
+        function updateWord(index, newWord) {
+            $.post('/update_word', {
+                index: index,
+                new_word: newWord
+            });
+        }
+
+        function updateState(index, isCorrect) {
+            $.post('/update_state', {
+                index: index,
+                is_correct: isCorrect
+            });
+        }
+    </script>
+</body>
+</html>
